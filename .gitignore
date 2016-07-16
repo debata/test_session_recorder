@@ -2,3 +2,4 @@
 reports
 sessions
 __pycache__
+*.xml
