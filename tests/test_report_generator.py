@@ -1,6 +1,6 @@
 import pytest
 import os
-from report_generator import SessionReportGenerator
+from modules.report_generator import SessionReportGenerator
 
 @pytest.fixture(scope='session')
 def generator(tmpdir_factory):

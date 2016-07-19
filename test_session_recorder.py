@@ -4,8 +4,8 @@ import os
 import datetime
 import shelve
 import subprocess
-from report_generator import SessionReportGenerator
-from session import Session
+from modules.report_generator import SessionReportGenerator
+from modules.session import Session
 
 
 class TestSessionRecorder(cmd.Cmd):

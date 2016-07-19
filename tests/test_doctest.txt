@@ -2,11 +2,6 @@ Test for a none existent test session
 
 >>> from test_session_recorder import TestSessionRecorder
 >>> recorder = TestSessionRecorder()
->>> recorder.show_session('NonExistentSession')
-Test Session not found
-
->>> recorder.show_session(None)
-Test Session not found
 
 >>> recorder.new_session('Doctest')
 ================================================================================
@@ -19,15 +14,6 @@ True
 >>> recorder.quit_session()# doctest:+ELLIPSIS
 Total Session Duration: ...
 Session saved.
-
->>> recorder.show_session('Doctest')
-================================================================================
-Test Session Contents
-================================================================================
-Test Areas:
-================================================================================
-Test Session Log
-================================================================================
 
 >>> recorder.delete_session('Doctest', 'n')
 >>> recorder.check_for_session('Doctest')

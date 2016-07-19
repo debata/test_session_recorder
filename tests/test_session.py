@@ -2,7 +2,7 @@ import pytest
 import test
 import datetime
 import os
-from session import Session
+from modules.session import Session
 
 @pytest.fixture
 def session(tmpdir_factory):
