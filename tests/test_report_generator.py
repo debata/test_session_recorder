@@ -7,7 +7,7 @@ def generator(tmpdir_factory):
     """Create the report generator object and pass in a temporary directory for testing"""
     global tmp_dir
     tmp_dir = tmpdir_factory.mktemp('test')
-    generator = SessionReportGenerator(str(tmp_dir))
+    generator = SessionReportGenerator(str(tmp_dir), 'test_session_recorder')
     return generator
 
 def test_generate_report(generator):

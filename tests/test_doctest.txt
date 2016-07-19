@@ -1,6 +1,6 @@
 Test for a none existent test session
 
->>> from test_session import TestSessionRecorder
+>>> from test_session_recorder import TestSessionRecorder
 >>> recorder = TestSessionRecorder()
 >>> recorder.show_session('NonExistentSession')
 Test Session not found

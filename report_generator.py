@@ -6,11 +6,11 @@ class SessionReportGenerator:
     TEMPLATES_DIR = 'templates'
     TEMPLATE = 'report-template.html'
 
-    def __init__(self, reports_dir):
+    def __init__(self, reports_dir, package):
         self.reports_dir = reports_dir
         if not os.path.exists(os.path.join(os.getcwd(), reports_dir)):
             os.makedirs(reports_dir)
-        env = Environment(loader=PackageLoader('test_session', self.TEMPLATES_DIR))
+        env = Environment(loader=PackageLoader(package, self.TEMPLATES_DIR))
         self.template = env.get_template(self.TEMPLATE)
 
     def generate_report(self, session_name='', session_mission='', test_areas=[], session_timebox='', session_duration='', session_log=[], bug_log=[], debrief=''):
