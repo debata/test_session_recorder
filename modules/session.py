@@ -1,6 +1,6 @@
+import time
 import shelve
 import os
-import time
 import datetime
 
 class Session:
@@ -12,7 +12,8 @@ class Session:
         'areas': 'areas [area1, area2] \n        Set the list of Test Areas',
         'screenshot': 'screenshot \n        Take a screenshot of the current display [NOT IMPLEMENTED]',
         'help': 'help [command] \n        Display command and description'}
-
+    CMD_KEY = 'cmd'
+    TEXT_KEY = 'cmd_text'
     QUIT_CMD = 'quit'
     BUG_CMD = 'bug'
     MISSION_CMD = 'mission'
@@ -72,52 +73,47 @@ class Session:
                 print('Debrief:', end=' ')
                 debrief = input()
                 self.session_file[self.SESSION_KEY][self.DEBRIEF_KEY] = debrief
-            return self.PASS_THROUGH + self.SESSION_QUIT
+            return {self.CMD_KEY:self.PASS_THROUGH + self.SESSION_QUIT, self.TEXT_KEY:''}
         elif line_data.startswith(self.BUG_CMD):
             line_data = line_data[len(self.BUG_CMD):]
             self.session_file[self.SESSION_KEY][self.LOG_KEY].append({'date':timestamp, 'entry':line_data, 'bug':True})
-            print('Bug data captured')
-            return self.PASS_THROUGH
+            return {self.CMD_KEY:self.PASS_THROUGH,self.TEXT_KEY:'Bug data captured'}
         elif line_data.startswith(self.TIMEBOX_CMD):
             line_data = line_data[len(self.TIMEBOX_CMD):]
             self.session_file[self.SESSION_KEY][self.TIMEBOX_KEY] = line_data
-            print('Test time box saved')
-            return self.PASS_THROUGH
+            return {self.CMD_KEY:self.PASS_THROUGH,self.TEXT_KEY:'Test time box saved'}
         elif line_data.startswith(self.MISSION_CMD):
             line_data = line_data[len(self.MISSION_CMD):]
             self.session_file[self.SESSION_KEY][self.MISSION_KEY] = line_data
-            print('Test mission saved')
-            return self.PASS_THROUGH
+            return {self.CMD_KEY:self.PASS_THROUGH,self.TEXT_KEY:'Test mission saved'}
         elif line_data.rstrip() == self.SCREENSHOT_CMD:
             pass
         elif line_data.rstrip() == self.UNDO_CMD:
             self.session_file[self.SESSION_KEY][self.LOG_KEY].pop()
-            print('Last entry removed')
-            return self.PASS_THROUGH
+            return {self.CMD_KEY:self.PASS_THROUGH,self.TEXT_KEY:'Last entry removed'}
         elif line_data.startswith(self.AREAS_CMD):
             areas = line_data[len(self.AREAS_CMD)+1:].split(sep=',')
             areas = [a.strip() for a in areas]
             areas = list(filter(None, areas))
             self.session_file[self.SESSION_KEY][self.AREAS_KEY] = areas
-            print('Test areas saved')
-            return self.PASS_THROUGH
+            return {self.CMD_KEY:self.PASS_THROUGH,self.TEXT_KEY:'Test areas saved'}
         elif line_data.rstrip() == self.HELP_CMD:
             commands = list(self.COMMANDS.keys())
+            help_text = ''
             for cmd in commands:
-                print(cmd , end='  ')
-                print('')
-            return self.PASS_THROUGH
+                help_text += cmd + '  \n'
+            help_text = help_text.rstrip()
+            return {self.CMD_KEY:self.PASS_THROUGH,self.TEXT_KEY:help_text}
         elif line_data.startswith(self.HELP_CMD):
             command = line_data[len(self.AREAS_CMD):]
             try:
-                print(self.COMMANDS[command])
+                return {self.CMD_KEY:self.PASS_THROUGH,self.TEXT_KEY:self.COMMANDS[command]}
             except KeyError:
-                print(command + ' command does not exist')
-                return self.PASS_THROUGH
+                return {self.CMD_KEY:self.PASS_THROUGH,self.TEXT_KEY:command + ' command does not exist'}
         else:
             # Write to session file 
             self.session_file[self.SESSION_KEY][self.LOG_KEY].append({'date':timestamp, 'entry':' '+line_data, 'bug':False})
-            return self.PASS_THROUGH
+            return {self.CMD_KEY:self.PASS_THROUGH,self.TEXT_KEY:''}
 
 
 

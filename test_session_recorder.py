@@ -116,7 +116,11 @@ class TestSessionRecorder(cmd.Cmd):
     def precmd(self, line):
         if self.session:
             timestamp = datetime.datetime.now().strftime('[%Y-%m-%d %H:%M:%S]')
-            return self.session.process_session_cmd(timestamp, line)
+            result =  self.session.process_session_cmd(timestamp, line)
+            console_text = result[Session.TEXT_KEY]
+            if console_text:
+                print(console_text)
+            return result[Session.CMD_KEY]
         else:
             return line
 
@@ -171,7 +175,7 @@ class TestSessionRecorder(cmd.Cmd):
                 print('Test Areas:')
                 for area in test_areas:
                     print('- ' + area)
-            TesteselfessionRecorder.print_header('Test Session Log')
+            TestSessionRecorder.print_header('Test Session Log')
             log_entries = session_data[Session.LOG_KEY]
             for entry in log_entries:
                 if entry['bug']:
