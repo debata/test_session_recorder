@@ -4,7 +4,6 @@ Test for a none existent test session
 >>> recorder = TestSessionRecorder()
 
 >>> recorder.new_session('Doctest')
-================================================================================
 Session Started: Doctest
 ================================================================================
 
