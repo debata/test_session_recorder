@@ -6,6 +6,7 @@ import shelve
 import subprocess
 from modules.report_generator import SessionReportGenerator
 from modules.session import Session
+from modules.print_colour import Printer
 
 
 class TestSessionRecorder(cmd.Cmd):
@@ -19,11 +20,12 @@ class TestSessionRecorder(cmd.Cmd):
 
     # Global Values
     prompt = DEFAULT_PROMPT
+    intro = 'Test Session Recorder is simply utility that allows a tester to capture and log test session data easily in an interactive command line format. Sessions can be viewed later or outputted to an HTML report'
     session = None
 
     try:
-        FNULL = open(os.devnull, 'w')
-        rows, columns = subprocess.check_output(['stty', 'size'], strerr=FNULL).decode('utf-8').split()
+        rows, columns = subprocess.check_output(['stty', 'size'] ).decode('utf-8').split()
+        columns = int(columns)
     except:
         rows = 0
         columns = 80
@@ -49,9 +51,9 @@ class TestSessionRecorder(cmd.Cmd):
             print('Please specify a test session to open')
         else:
             if self.check_for_session(session_name):
+                TestSessionRecorder.print_header ('Session Opened - ' + session_name)
                 self.show_session(Session.get_session_data(session_name, self.SESSION_DIR))
                 self.session = Session(session_name, self.SESSION_DIR, datetime.datetime.now().replace(microsecond=0))
-                TestSessionRecorder.print_header ('Session Opened - ' + session_name)
                 self.session_start_time = datetime.datetime.now().replace(microsecond=0)
                 self.prompt = self.SESSION_PROMPT
             else:
@@ -162,31 +164,38 @@ class TestSessionRecorder(cmd.Cmd):
         return session_name in all_sessions
 
     def show_session(self, session_data):
-            TestSessionRecorder.print_header('Test Session Contents')
+            TestSessionRecorder.print_header('Test Session Contents', True)
             mission = session_data[Session.MISSION_KEY]
             timebox = session_data[Session.TIMEBOX_KEY]
             test_areas = session_data[Session.AREAS_KEY]
             debrief = session_data[Session.DEBRIEF_KEY]
             if mission is not None:
-                print('Test Mission: ' + mission )
+                Printer.print('Test Mission: ', end='')
+                print(mission)
             if timebox is not None:
-                print('Timebox: ' + timebox )
-            if test_areas is not None:
-                print('Test Areas:')
+                Printer.print('Timebox: ', end='')
+                print(timebox)
+            if len(test_areas) != 0:
+                Printer.print('Test Areas:')
                 for area in test_areas:
                     print('- ' + area)
-            TestSessionRecorder.print_header('Test Session Log')
+            TestSessionRecorder.print_bar()
+            TestSessionRecorder.print_header('Test Session Log', True)
             log_entries = session_data[Session.LOG_KEY]
-            for entry in log_entries:
-                if entry['bug']:
-                    print(entry['date'] + ' (BUG)' + entry['entry'])
-                else:
-                    print(entry['date'] + ' ' + entry['entry'])
+            if len(log_entries) > 0:
+                for entry in log_entries:
+                    if entry['bug']:
+                        Printer.print(entry['date'] + ' (BUG)' + entry['entry'], Printer.WARNING)
+                    else:
+                        print(entry['date'] + ' ' + entry['entry'])
+                TestSessionRecorder.print_bar()
             if debrief is not None:
-                TestSessionRecorder.print_header('Debrief: ' + debrief)
+                Printer.print('Debrief: ' , end='')
+                print(debrief)
 
     def new_session(self, session_name):
-        TestSessionRecorder.print_header('Session Started: ' + session_name)
+        print('Session Started: ' + session_name)
+        TestSessionRecorder.print_bar()
         self.prompt = Session.SESSION_PROMPT
         self.session = Session(session_name, self.SESSION_DIR, datetime.datetime.now().replace(microsecond=0))
 
@@ -210,11 +219,17 @@ class TestSessionRecorder(cmd.Cmd):
         return completions
 
     @classmethod
-    def print_header(cls, header_text):
-        print('='*int(TestSessionRecorder.columns))
-        print(header_text)
-        print('='*int(TestSessionRecorder.columns))
+    def print_header(cls, header_text, center=False):
+        if center:
+            Printer.print(' '*(int(TestSessionRecorder.columns/2)-int((len(header_text)/2))) + header_text, Printer.BLUE)
+        else:
+            Printer.print(header_text, Printer.BLUE)
+        TestSessionRecorder.print_bar()
+
+    @classmethod
+    def print_bar(cls):
+        print('='*TestSessionRecorder.columns)
 
 if __name__ == '__main__':
-    TestSessionRecorder().cmdloop(TestSessionRecorder.print_header('Test Session Recorder'))
+    TestSessionRecorder().cmdloop(TestSessionRecorder.print_header('Test Session Recorder', True))
 
