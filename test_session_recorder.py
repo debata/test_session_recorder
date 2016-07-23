@@ -53,8 +53,7 @@ class TestSessionRecorder(cmd.Cmd):
             if self.check_for_session(session_name):
                 TestSessionRecorder.print_header ('Session Opened - ' + session_name)
                 self.show_session(Session.get_session_data(session_name, self.SESSION_DIR))
-                self.session = Session(session_name, self.SESSION_DIR, datetime.datetime.now().replace(microsecond=0))
-                self.session_start_time = datetime.datetime.now().replace(microsecond=0)
+                self.session = Session(session_name, self.SESSION_DIR)
                 self.prompt = self.SESSION_PROMPT
             else:
                 #Session does not exist so start a new one
@@ -129,10 +128,10 @@ class TestSessionRecorder(cmd.Cmd):
     def default(self, line):
         if self.session:
             self.prompt = Session.SESSION_PROMPT
+            if Session.SESSION_QUIT in line:
+                self.quit_session()
         else:
             print ('Please enter a valid command')
-        if Session.SESSION_QUIT in line:
-            self.quit_session()
 
     def do_delete(self, session_name):
         """delete [session_name]
@@ -192,23 +191,21 @@ class TestSessionRecorder(cmd.Cmd):
             if debrief is not None:
                 Printer.print('Debrief: ' , end='')
                 print(debrief)
+            Printer.print('Duration: ' , end='')
+            print(session_data[Session.DURATION_KEY])
 
     def new_session(self, session_name):
         print('Session Started: ' + session_name)
         TestSessionRecorder.print_bar()
         self.prompt = Session.SESSION_PROMPT
-        self.session = Session(session_name, self.SESSION_DIR, datetime.datetime.now().replace(microsecond=0))
+        self.session = Session(session_name, self.SESSION_DIR)
 
     def quit_session(self):
         self.prompt = self.DEFAULT_PROMPT
         duration = self.session.get_duration()
-        if duration is not None:
-            duration += datetime.datetime.now().replace(microsecond=0) - self.session.get_session_start_time()
-        else:
-           duration = datetime.datetime.now().replace(microsecond=0) - self.session.get_session_start_time()
-        self.session = self.session.quit(duration)
         print('Total Session Duration: ' + str(duration))
         print('Session saved.')
+        self.session = None
 
     def autocomplete_sessions(self, text, line, begidx, endidx):
         all_sessions = os.listdir(self.SESSION_DIR)
