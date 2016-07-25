@@ -2,12 +2,15 @@ import time
 import shelve
 import os
 import datetime
+from .session_timer import DurationTimer
 
 class Session:
 
     COMMANDS = {'bug':'bug [bug_description] \n        Raise bug with a given description',
         'mission':'mission [statement] \n        Set the Test Mission',
         'timebox':'timebox [time_value] \n        Set the Test Timebox',
+        'pause' : 'pause \n        Pause the current session. Session resumes upon next entry',
+        'duration' : 'duration \n        Show the current session duration',
         'undo': 'undo \n        Undo the last test session entry',
         'areas': 'areas [area1, area2] \n        Set the list of Test Areas',
         'screenshot': 'screenshot \n        Take a screenshot of the current display [NOT IMPLEMENTED]',
@@ -23,6 +26,8 @@ class Session:
     SCREENSHOT_CMD = 'screenshot'
     SESSION_QUIT = '!SESSION_QUIT!'
     HELP_CMD = 'help'
+    PAUSE_CMD = 'pause'
+    DURATION_CMD = 'duration'
     PASS_THROUGH = 'passthrough '
     # File Keys
     SESSION_KEY = 'session_data'
@@ -34,15 +39,18 @@ class Session:
     DEBRIEF_KEY = 'defrief'
     SESSION_PROMPT = 'SESSION >> '
 
-    def __init__(self, session_name, session_dir, start_time):
+    def __init__(self, session_name, session_dir):
         self.session_dir = session_dir
         self.session_file = shelve.open(os.path.join(session_dir, session_name), writeback=True)
-        self.session_start_time = start_time
+        self.paused = False
+        self.pause_intervals = []
         # Check to see if this is an existing session, if not initialize a skeleton
         try:
-            self.session_file[self.SESSION_KEY][self.LOG_KEY]
+            self.duration = self.session_file[self.SESSION_KEY][self.DURATION_KEY]
         except KeyError:
             self.session_file[self.SESSION_KEY] = {self.LOG_KEY:[], self.TIMEBOX_KEY:None, self.MISSION_KEY:None, self.DURATION_KEY:None, self.AREAS_KEY:[], self.DEBRIEF_KEY:None}
+            self.duration = datetime.timedelta(seconds=0)
+        self.timer = DurationTimer(self.duration)
 
     @staticmethod
     def get_session_data(session_name, session_dir):
@@ -53,19 +61,14 @@ class Session:
 
     def get_duration(self):
         try:
-            duration = self.session_file[self.SESSION_KEY][self.DURATION_KEY]
-            return duration
+            self.duration = self.session_file[self.SESSION_KEY][self.DURATION_KEY]
+            return self.duration
         except KeyError:
             return None
 
-    def get_session_start_time(self):
-        return self.session_start_time
-
-    def quit(self, duration):
-       self.session_file[self.SESSION_KEY][self.DURATION_KEY] = duration
-       self.session_file.close()
-
     def process_session_cmd(self, timestamp, line_data):
+        if self.paused:
+            self.paused = self.timer.unpause()
         if line_data.rstrip() == 'quit':
             print('Would you like to record a debrief? (y/N)')
             confirmation = input()
@@ -73,6 +76,8 @@ class Session:
                 print('Debrief:', end=' ')
                 debrief = input()
                 self.session_file[self.SESSION_KEY][self.DEBRIEF_KEY] = debrief
+            self.session_file[self.SESSION_KEY][self.DURATION_KEY] = self.timer.stop()
+            print(self.session_file[self.SESSION_KEY][self.DURATION_KEY])
             return {self.CMD_KEY:self.PASS_THROUGH + self.SESSION_QUIT, self.TEXT_KEY:''}
         elif line_data.startswith(self.BUG_CMD):
             line_data = line_data[len(self.BUG_CMD):]
@@ -97,6 +102,11 @@ class Session:
             areas = list(filter(None, areas))
             self.session_file[self.SESSION_KEY][self.AREAS_KEY] = areas
             return {self.CMD_KEY:self.PASS_THROUGH,self.TEXT_KEY:'Test areas saved'}
+        elif line_data.rstrip() == self.PAUSE_CMD:
+            self.paused = self.timer.pause()
+            return {self.CMD_KEY:self.PASS_THROUGH,self.TEXT_KEY:'Session paused'}
+        elif line_data.rstrip() == self.DURATION_CMD:
+            return {self.CMD_KEY:self.PASS_THROUGH,self.TEXT_KEY:'Duration: '}
         elif line_data.rstrip() == self.HELP_CMD:
             commands = list(self.COMMANDS.keys())
             help_text = ''
@@ -114,6 +124,5 @@ class Session:
             # Write to session file 
             self.session_file[self.SESSION_KEY][self.LOG_KEY].append({'date':timestamp, 'entry':' '+line_data, 'bug':False})
             return {self.CMD_KEY:self.PASS_THROUGH,self.TEXT_KEY:''}
-
 
 

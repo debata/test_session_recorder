@@ -7,7 +7,7 @@ from modules.session import Session
 @pytest.fixture
 def session(tmpdir_factory):
     tmp_dir = tmpdir_factory.mktemp('test')
-    session = Session('TestSession', str(tmp_dir), datetime.datetime.now().replace(microsecond=0))
+    session = Session('TestSession', str(tmp_dir))
     return session
 
 @pytest.fixture
