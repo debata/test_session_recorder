@@ -67,8 +67,11 @@ class Session:
             return None
 
     def process_session_cmd(self, timestamp, line_data):
+        # If session is in unpaused state, immediately unpause and proceed with the command processor
         if self.paused:
             self.paused = self.timer.unpause()
+
+        # Process session commands 
         if line_data.rstrip() == 'quit':
             print('Would you like to record a debrief? (y/N)')
             confirmation = input()
@@ -76,7 +79,7 @@ class Session:
                 print('Debrief:', end=' ')
                 debrief = input()
                 self.session_file[self.SESSION_KEY][self.DEBRIEF_KEY] = debrief
-            self.session_file[self.SESSION_KEY][self.DURATION_KEY] = self.timer.stop()
+            self.session_file[self.SESSION_KEY][self.DURATION_KEY] = self.timer.get_duration()
             print(self.session_file[self.SESSION_KEY][self.DURATION_KEY])
             return {self.CMD_KEY:self.PASS_THROUGH + self.SESSION_QUIT, self.TEXT_KEY:''}
         elif line_data.startswith(self.BUG_CMD):
@@ -92,7 +95,7 @@ class Session:
             self.session_file[self.SESSION_KEY][self.MISSION_KEY] = line_data
             return {self.CMD_KEY:self.PASS_THROUGH,self.TEXT_KEY:'Test mission saved'}
         elif line_data.rstrip() == self.SCREENSHOT_CMD:
-            pass
+            return {self.CMD_KEY:self.PASS_THROUGH,self.TEXT_KEY:'**Not Implemented yet**'}
         elif line_data.rstrip() == self.UNDO_CMD:
             self.session_file[self.SESSION_KEY][self.LOG_KEY].pop()
             return {self.CMD_KEY:self.PASS_THROUGH,self.TEXT_KEY:'Last entry removed'}
@@ -106,7 +109,7 @@ class Session:
             self.paused = self.timer.pause()
             return {self.CMD_KEY:self.PASS_THROUGH,self.TEXT_KEY:'Session paused'}
         elif line_data.rstrip() == self.DURATION_CMD:
-            return {self.CMD_KEY:self.PASS_THROUGH,self.TEXT_KEY:'Duration: '}
+            return {self.CMD_KEY:self.PASS_THROUGH,self.TEXT_KEY:'Duration: '+str(self.timer.get_duration())}
         elif line_data.rstrip() == self.HELP_CMD:
             commands = list(self.COMMANDS.keys())
             help_text = ''

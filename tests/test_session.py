@@ -22,29 +22,48 @@ def test_bug_cmd(session, timestamp):
     result = session.process_session_cmd(timestamp, Session.BUG_CMD)
     assert result[Session.CMD_KEY] == Session.PASS_THROUGH, 'Unexpected command value'
     assert result[Session.TEXT_KEY] == 'Bug data captured', 'Unexpected command message'
+
 def test_timebox_cmd(session, timestamp):
     result = session.process_session_cmd(timestamp, Session.TIMEBOX_CMD)
     assert result[Session.CMD_KEY] == Session.PASS_THROUGH, 'Unexpected command value'
     assert result[Session.TEXT_KEY] == 'Test time box saved', 'Unexpected command message'
+
 def test_mission_cmd(session, timestamp):
     result = session.process_session_cmd(timestamp, Session.MISSION_CMD)
     assert result[Session.CMD_KEY] == Session.PASS_THROUGH, 'Unexpected command value'
     assert result[Session.TEXT_KEY] == 'Test mission saved', 'Unexpected command message'
+
 def test_areas_cmd(session, timestamp):
     result = session.process_session_cmd(timestamp, Session.AREAS_CMD)
     assert result[Session.CMD_KEY] == Session.PASS_THROUGH, 'Unexpected command value'
     assert result[Session.TEXT_KEY] == 'Test areas saved', 'Unexpected command message'
+
 def test_undo_cmd(session, timestamp):
     session.process_session_cmd(timestamp, 'Entry')
     result = session.process_session_cmd(timestamp, Session.UNDO_CMD)
     assert result[Session.CMD_KEY] == Session.PASS_THROUGH, 'Unexpected command value'
     assert result[Session.TEXT_KEY] == 'Last entry removed', 'Unexpected command message'
+
 def test_invalid_help_cmd(session,timestamp):
     bad_cmd = 'invalid'
     result = session.process_session_cmd(timestamp, Session.HELP_CMD + ' ' + bad_cmd)
     assert result[Session.CMD_KEY] == Session.PASS_THROUGH, 'Unexpected command value'
     assert result[Session.TEXT_KEY] == bad_cmd + ' command does not exist','Unexpected help command message'
+
 def test_valid_help_cmd(session, timestamp):
     result = session.process_session_cmd(timestamp, Session.HELP_CMD + ' ' + Session.MISSION_CMD)
     assert result[Session.CMD_KEY] == Session.PASS_THROUGH, 'Unexpected command value'
     assert result[Session.TEXT_KEY] == 'mission [statement] \n        Set the Test Mission','Unexpected help command message'
+
+def test_duration_cmd(session, timestamp):
+    test_session = session
+    wait_time = 2
+    wait(wait_time)
+    result = session.process_session_cmd(timestamp, Session.DURATION_CMD)
+    assert result[Session.CMD_KEY] == Session.PASS_THROUGH, 'Unexpected command value'
+    assert result[Session.TEXT_KEY] == 'Duration: 0:00:0'+str(wait_time)
+
+def wait(duration_in_seconds):
+    start_time = datetime.datetime.now().replace(microsecond=0)
+    while not ((datetime.datetime.now().replace(microsecond=0) - start_time) == datetime.timedelta(seconds=duration_in_seconds)):
+        pass # Wait 

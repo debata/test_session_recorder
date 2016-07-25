@@ -2,7 +2,8 @@ import datetime
 
 class DurationTimer:
     def __init__(self, initial_duration=datetime.timedelta(seconds=0)):
-        self.total_duration = initial_duration
+        self.total_duration = 0
+        self.initial_duration = initial_duration
         self.start_time = datetime.datetime.now().replace(microsecond=0)
         self.pause_intervals = []
 
@@ -15,9 +16,10 @@ class DurationTimer:
         self.pause_intervals.append(self.pause_interval)
         return False
 
-    def stop(self):
-        self.total_duration += datetime.datetime.now().replace(microsecond=0) - self.start_time
+    def get_duration(self):
+        self.total_duration = datetime.datetime.now().replace(microsecond=0) - self.start_time
         for interval in self.pause_intervals:
             self.total_duration -= interval
 
-        return self.total_duration
+        return self.total_duration + self.initial_duration
+
