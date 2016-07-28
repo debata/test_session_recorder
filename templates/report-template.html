@@ -11,7 +11,7 @@
 	</style>
 	<body class="sans-serif">
 		<h2> {{ session_name }} Session Report </h2>
-		<b> Test Mission: </b> {{ session_mission }} <br>
+		<b> Test Mission: </b> {{ test_mission }} <br>
 		{% if test_areas|length > 0 %}
 		<b> Test Areas: </b>
 			<ul>
@@ -40,7 +40,7 @@
 		<p>
 		{% if debrief is not none %}
 		<h2>Debrief</h2>
-		{{ debrief }}
+		{{ session_debrief }}
 		{% endif %}
 		</p>
 	</body>
