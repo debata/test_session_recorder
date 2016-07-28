@@ -1,4 +1,5 @@
 from jinja2 import Environment, PackageLoader
+from .session import Session
 import os
 
 class SessionReportGenerator:
@@ -13,10 +14,13 @@ class SessionReportGenerator:
         env = Environment(loader=PackageLoader(package, self.TEMPLATES_DIR))
         self.template = env.get_template(self.TEMPLATE)
 
-    def generate_report(self, session_name='', session_mission='', test_areas=[], session_timebox='', session_duration='', session_log=[], bug_log=[], debrief=''):
+    def generate_report(self, session_name='', filename=None, **report_params):
         try:
-            html_report = open(os.path.join(os.getcwd(), self.reports_dir, session_name + '.html'), 'w+')
-            html_report.write((self.template.render(session_name=session_name, test_areas=test_areas, session_mission=session_mission, session_timebox=session_timebox, session_duration=session_duration, session_log=session_log, bugs=bug_log, debrief=debrief)))
+            if filename:
+                html_report = open(os.path.join(os.getcwd(), self.reports_dir, filename + '.html'), 'w+')
+            else:
+                html_report = open(os.path.join(os.getcwd(), self.reports_dir, session_name + '.html'), 'w+')
+            html_report.write((self.template.render(session_name=session_name, **report_params)))
         except:
             return False
         else:

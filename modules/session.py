@@ -30,13 +30,15 @@ class Session:
     DURATION_CMD = 'duration'
     PASS_THROUGH = 'passthrough '
     # File Keys
+    SESSION_NAME_KEY = 'session_name'
     SESSION_KEY = 'session_data'
-    LOG_KEY = 'test_log'
+    LOG_KEY = 'session_log'
+    BUG_KEY = 'bugs'
     MISSION_KEY = 'test_mission'
-    TIMEBOX_KEY = 'timebox'
-    DURATION_KEY = 'test_duration'
+    TIMEBOX_KEY = 'session_timebox'
+    DURATION_KEY = 'session_duration'
     AREAS_KEY = 'test_areas'
-    DEBRIEF_KEY = 'defrief'
+    DEBRIEF_KEY = 'session_debrief'
     SESSION_PROMPT = 'SESSION >> '
 
     def __init__(self, session_name, session_dir):
@@ -112,7 +114,7 @@ class Session:
             return {self.CMD_KEY:self.PASS_THROUGH,self.TEXT_KEY:'Duration: '+str(self.timer.get_duration())}
         elif line_data.rstrip() == self.HELP_CMD:
             commands = list(self.COMMANDS.keys())
-            help_text = ''
+            help_text = 'Available session commands'
             for cmd in commands:
                 help_text += cmd + '  \n'
             help_text = help_text.rstrip()
