@@ -83,33 +83,40 @@ class TestSessionRecorder(cmd.Cmd):
         else:
             print('There are no recorded sessions')
 
-    def do_report(self, session_name):
-        """report [session_name]
-        Generate an HTML report for [session_name]"""
-        if not session_name:
-            print('Please enter a valid session name')
-        elif self.check_for_session(session_name):
-            generator = SessionReportGenerator(self.REPORTS_DIR, 'test_session_recorder')
-            session_data = Session.get_session_data(session_name, self.SESSION_DIR)
-            mission = session_data[Session.MISSION_KEY]
-            timebox = session_data[Session.TIMEBOX_KEY]
-            duration = session_data[Session.DURATION_KEY]
-            log = session_data[Session.LOG_KEY]
-            test_areas = session_data[Session.AREAS_KEY]
-            debrief = session_data[Session.DEBRIEF_KEY]
-            test_log = []
-            bug_log = []
-            for entry in log:
-                if entry['bug']:
-                    bug_log.append(entry['date'] + ' ' + entry['entry'])
+    def do_report(self, report_args):
+        """report [report_args]
+        Generate an HTML report for [session_name] [optional_filename]"""
+        args = report_args.split()
+        if len(args) == 0:
+            print ('Please enter a valid session name')
+        elif len(args) >= 1:
+            session_name = args[0]
+            if self.check_for_session(session_name):
+                generator = SessionReportGenerator(self.REPORTS_DIR, 'test_session_recorder')
+                session_data = Session.get_session_data(session_name, self.SESSION_DIR)
+                log = session_data[Session.LOG_KEY]
+                test_log = []
+                bug_log = []
+                for entry in log:
+                    if entry['bug']:
+                        bug_log.append(entry['date'] + ' ' + entry['entry'])
+                    else:
+                        test_log.append(entry['date'] + ' ' + entry['entry'])
+                session_data[Session.BUG_KEY] = bug_log
+                session_data[Session.LOG_KEY] = test_log
+                if len(args) == 2:
+                    filename = args[1]
+                    result = generator.generate_report(session_name, filename, **session_data)
                 else:
-                    test_log.append(entry['date'] + ' ' + entry['entry'])
-            if generator.generate_report(session_name, mission, test_areas, timebox, duration, test_log, bug_log, debrief):
-                print('Report sucessfully generated')
+                    result = generator.generate_report(session_name, **session_data)
+                if result:
+                    print('Report sucessfully generated')
+                else:
+                    print('Report failed to generate')
             else:
-                print('Report failed to generate')
+                print('Session name not found')
         else:
-            print('There is no test session with that name')
+            print('Invalid report arguments')
 
     def complete_report(self, text, line, begidx, endidx):
         return self.autocomplete_sessions(text, line, begidx, endidx)
