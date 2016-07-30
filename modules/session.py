@@ -82,7 +82,6 @@ class Session:
                 debrief = input()
                 self.session_file[self.SESSION_KEY][self.DEBRIEF_KEY] = debrief
             self.session_file[self.SESSION_KEY][self.DURATION_KEY] = self.timer.get_duration()
-            print(self.session_file[self.SESSION_KEY][self.DURATION_KEY])
             return {self.CMD_KEY:self.PASS_THROUGH + self.SESSION_QUIT, self.TEXT_KEY:''}
         elif line_data.startswith(self.BUG_CMD):
             line_data = line_data[len(self.BUG_CMD):]

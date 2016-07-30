@@ -16,7 +16,6 @@ class TestSessionRecorder(cmd.Cmd):
     REPORTS_DIR = 'reports'
     # Prompts
     DEFAULT_PROMPT = '>> '
-    SESSION_PROMPT = 'SESSION >> '
 
     # Global Values
     prompt = DEFAULT_PROMPT
@@ -54,7 +53,7 @@ class TestSessionRecorder(cmd.Cmd):
                 TestSessionRecorder.print_header ('Session Opened - ' + session_name)
                 self.show_session(Session.get_session_data(session_name, self.SESSION_DIR))
                 self.session = Session(session_name, self.SESSION_DIR)
-                self.prompt = self.SESSION_PROMPT
+                self.prompt = Session.SESSION_PROMPT
             else:
                 #Session does not exist so start a new one
                 self.new_session(session_name)
@@ -210,7 +209,7 @@ class TestSessionRecorder(cmd.Cmd):
     def quit_session(self):
         self.prompt = self.DEFAULT_PROMPT
         duration = self.session.get_duration()
-        print('Total Session Duration: ' + str(duration))
+        print('Session Duration: ' + str(duration))
         print('Session saved.')
         self.session = None
 
