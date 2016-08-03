@@ -36,3 +36,10 @@ def test_generate_report_new_filename(generator):
     generator.generate_report(filename=session_filename, **report_data)
     assert os.path.isfile(os.path.join(str(tmp_dir), session_filename + '.html')), 'Report file was not created'
 
+def test_generate_report_new_filename_with_space(generator):
+    """Test to generate a report with all report values set"""
+    session_filename = 'alternate file with spaces'
+    session_name = 'Session22'
+    report_data = {Session.SESSION_NAME_KEY:session_name, Session.MISSION_KEY:'Test Mession', Session.AREAS_KEY:['Area 1', 'Area 2'], Session.TIMEBOX_KEY:'00:30:00', Session.DURATION_KEY:'00:20:00', Session.LOG_KEY:['Entry 1'], Session.BUG_KEY:['Bug 1', 'Bug 2'], Session.DEBRIEF_KEY:'Test Debrief'}
+    generator.generate_report(filename=session_filename, **report_data)
+    assert os.path.isfile(os.path.join(str(tmp_dir), session_filename + '.html')), 'Report file was not created'

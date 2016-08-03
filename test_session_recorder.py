@@ -84,12 +84,12 @@ class TestSessionRecorder(cmd.Cmd):
 
     def do_report(self, report_args):
         """report [report_args]
-        Generate an HTML report for [session_name] [optional_filename]"""
-        args = report_args.split()
+        Generate an HTML report for [session_name] -f [optional_filename]"""
+        args = report_args.split('-f')
         if len(args) == 0:
             print ('Please enter a valid session name')
         elif len(args) >= 1:
-            session_name = args[0]
+            session_name = args[0].strip()
             if self.check_for_session(session_name):
                 generator = SessionReportGenerator(self.REPORTS_DIR, 'test_session_recorder')
                 session_data = Session.get_session_data(session_name, self.SESSION_DIR)
@@ -104,7 +104,7 @@ class TestSessionRecorder(cmd.Cmd):
                 session_data[Session.BUG_KEY] = bug_log
                 session_data[Session.LOG_KEY] = test_log
                 if len(args) == 2:
-                    filename = args[1]
+                    filename = args[1].strip()
                     result = generator.generate_report(session_name, filename, **session_data)
                 else:
                     result = generator.generate_report(session_name, **session_data)

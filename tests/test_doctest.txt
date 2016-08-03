@@ -11,7 +11,7 @@ Session Started: Doctest
 True
 
 >>> recorder.quit_session()# doctest:+ELLIPSIS
-Total Session Duration: ...
+Session Duration: ...
 Session saved.
 
 >>> recorder.delete_session('Doctest', 'n')
