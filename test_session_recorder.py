@@ -2,7 +2,6 @@ import time
 import cmd
 import os
 import datetime
-import shelve
 import subprocess
 from modules.report_generator import SessionReportGenerator
 from modules.session import Session
@@ -19,19 +18,23 @@ class TestSessionRecorder(cmd.Cmd):
 
     # Global Values
     prompt = DEFAULT_PROMPT
-    intro = 'Test Session Recorder is simply utility that allows a tester to capture and log test session data easily in an interactive command line format. Sessions can be viewed later or outputted to an HTML report'
+    intro = 'Test Session Recorder is simply utility that allows a'
+    'tester to capture and log test session data easily in an '
+    'interactive command line format. Sessions can be viewed '
+    'later or outputted to an HTML report'
     session = None
 
     try:
-        rows, columns = subprocess.check_output(['stty', 'size'] ).decode('utf-8').split()
+        rows, columns = subprocess.check_output(
+                ['stty', 'size']).decode('utf-8').split()
         columns = int(columns)
     except:
         rows = 0
         columns = 80
 
     def preloop(self):
-        if not os.path.exists(os.path.join(os.getcwd(),self.SESSION_DIR)):
-           os.makedirs(self.SESSION_DIR)
+        if not os.path.exists(os.path.join(os.getcwd(), self.SESSION_DIR)):
+            os.makedirs(self.SESSION_DIR)
 
     def do_new(self, session_name):
         """new [session_name]
@@ -39,23 +42,28 @@ class TestSessionRecorder(cmd.Cmd):
         if not session_name:
             print('Test session must have a name or title')
         elif self.check_for_session(session_name):
-            print('This test session already exists. Please try again with a different title')
+            print('This test session already exists. Please try again with a'
+                  ' different title')
         else:
             self.new_session(session_name)
 
     def do_open(self, session_name):
         """open [session_name]
-        Open test session_name or start a new session if session_name does not exist"""
+        Open test session_name or start a new session if
+         session_name does not exist"""
         if not session_name:
             print('Please specify a test session to open')
         else:
             if self.check_for_session(session_name):
-                TestSessionRecorder.print_header ('Session Opened - ' + session_name)
-                self.show_session(Session.get_session_data(session_name, self.SESSION_DIR))
+                TestSessionRecorder.print_header(
+                        'Session Opened - ' + session_name)
+                self.show_session(
+                        Session.get_session_data(
+                            session_name, self.SESSION_DIR))
                 self.session = Session(session_name, self.SESSION_DIR)
                 self.prompt = Session.SESSION_PROMPT
             else:
-                #Session does not exist so start a new one
+                # Session does not exist so start a new one
                 self.new_session(session_name)
 
     def complete_open(self, text, line, begidx, endidx):
@@ -64,7 +72,8 @@ class TestSessionRecorder(cmd.Cmd):
     def do_show(self, session_name):
         """show [session_name]
         Show contents of test session_name"""
-        self.show_session(Session.get_session_data(session_name, self.SESSION_DIR))
+        self.show_session(Session.get_session_data(
+            session_name, self.SESSION_DIR))
 
     def complete_show(self, text, line, begidx, endidx):
         return self.autocomplete_sessions(text, line, begidx, endidx)
@@ -77,8 +86,10 @@ class TestSessionRecorder(cmd.Cmd):
             TestSessionRecorder.print_header('Test Sessions')
             for session in all_sessions:
                 print(session, end='')
-                create_time = time.ctime(os.path.getmtime(os.path.join(self.SESSION_DIR, session)))
-                print(' '*(self.columns-len(session)-len(create_time)) + create_time)
+                create_time = time.ctime(os.path.getmtime(
+                    os.path.join(self.SESSION_DIR, session)))
+                print(' '*(self.columns-len(session)-len(create_time))
+                      + create_time)
         else:
             print('There are no recorded sessions')
 
@@ -87,12 +98,14 @@ class TestSessionRecorder(cmd.Cmd):
         Generate an HTML report for [session_name] -f [optional_filename]"""
         args = report_args.split('-f')
         if len(args) == 0:
-            print ('Please enter a valid session name')
+            print('Please enter a valid session name')
         elif len(args) >= 1:
             session_name = args[0].strip()
             if self.check_for_session(session_name):
-                generator = SessionReportGenerator(self.REPORTS_DIR, 'test_session_recorder')
-                session_data = Session.get_session_data(session_name, self.SESSION_DIR)
+                generator = SessionReportGenerator(self.REPORTS_DIR,
+                                                   'test_session_recorder')
+                session_data = Session.get_session_data(
+                        session_name, self.SESSION_DIR)
                 log = session_data[Session.LOG_KEY]
                 test_log = []
                 bug_log = []
@@ -105,9 +118,11 @@ class TestSessionRecorder(cmd.Cmd):
                 session_data[Session.LOG_KEY] = test_log
                 if len(args) == 2:
                     filename = args[1].strip()
-                    result = generator.generate_report(session_name, filename, **session_data)
+                    result = generator.generate_report(
+                           session_name, filename, **session_data)
                 else:
-                    result = generator.generate_report(session_name, **session_data)
+                    result = generator.generate_report(
+                                session_name, **session_data)
                 if result:
                     print('Report sucessfully generated')
                 else:
@@ -123,7 +138,7 @@ class TestSessionRecorder(cmd.Cmd):
     def precmd(self, line):
         if self.session:
             timestamp = datetime.datetime.now().strftime('[%Y-%m-%d %H:%M:%S]')
-            result =  self.session.process_session_cmd(timestamp, line)
+            result = self.session.process_session_cmd(timestamp, line)
             console_text = result[Session.TEXT_KEY]
             if console_text:
                 print(console_text)
@@ -137,7 +152,7 @@ class TestSessionRecorder(cmd.Cmd):
             if Session.SESSION_QUIT in line:
                 self.quit_session()
         else:
-            print ('Please enter a valid command')
+            print('Please enter a valid command')
 
     def do_delete(self, session_name):
         """delete [session_name]
@@ -145,9 +160,10 @@ class TestSessionRecorder(cmd.Cmd):
         if not session_name:
             print('Please enter a valid session name')
         elif self.check_for_session(session_name):
-            print('Are you sure you want to delete {} ? (y/N)'.format(session_name))
+            print('Are you sure you want to delete {} ? (y/N)'.format(
+                session_name))
             confirmation = input()
-            self.delete_session( session_name, confirmation)
+            self.delete_session(session_name, confirmation)
         else:
             print('There is no test session with that name')
 
@@ -190,14 +206,16 @@ class TestSessionRecorder(cmd.Cmd):
             if len(log_entries) > 0:
                 for entry in log_entries:
                     if entry['bug']:
-                        Printer.print(entry['date'] + ' (BUG)' + entry['entry'], Printer.WARNING)
+                        Printer.print(
+                                entry['date'] + ' (BUG)' + entry['entry'],
+                                Printer.WARNING)
                     else:
                         print(entry['date'] + ' ' + entry['entry'])
                 TestSessionRecorder.print_bar()
             if debrief is not None:
-                Printer.print('Debrief: ' , end='')
+                Printer.print('Debrief: ', end='')
                 print(debrief)
-            Printer.print('Duration: ' , end='')
+            Printer.print('Duration: ', end='')
             print(session_data[Session.DURATION_KEY])
 
     def new_session(self, session_name):
@@ -224,7 +242,8 @@ class TestSessionRecorder(cmd.Cmd):
     @classmethod
     def print_header(cls, header_text, center=False):
         if center:
-            Printer.print(' '*(int(TestSessionRecorder.columns/2)-int((len(header_text)/2))) + header_text, Printer.BLUE)
+            Printer.print(' '*(int(TestSessionRecorder.columns/2)-int(
+                (len(header_text)/2))) + header_text, Printer.BLUE)
         else:
             Printer.print(header_text, Printer.BLUE)
         TestSessionRecorder.print_bar()
@@ -234,5 +253,5 @@ class TestSessionRecorder(cmd.Cmd):
         print('='*TestSessionRecorder.columns)
 
 if __name__ == '__main__':
-    TestSessionRecorder().cmdloop(TestSessionRecorder.print_header('Test Session Recorder', True))
-
+    TestSessionRecorder().cmdloop(
+            TestSessionRecorder.print_header('Test Session Recorder', True))
