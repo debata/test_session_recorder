@@ -1,0 +1,47 @@
+<html>
+	<title>Test Session Report - {{ session_name }}</title>
+	<style>
+	body.sans-serif{
+		font-family: "Verdana", Geneva, sans-serif; 
+	}
+
+	p.mono {
+		font-family: "Lucida Console", Monaco, monospace;
+	}
+	</style>
+	<body class="sans-serif">
+		<h2> {{ session_name }} Session Report </h2>
+		<b> Test Mission: </b> {{ test_mission }} <br>
+		{% if test_areas|length > 0 %}
+		<b> Test Areas: </b>
+			<ul>
+				{% for area in test_areas %}
+					<li>{{ area }}
+				{% endfor %}
+			</ul>
+		{% endif %}
+		<b> Time Box: </b> {{ session_timebox }} <br>
+		<b> Duration: </b> {{ session_duration }} <br>
+		<br>
+		<h2> Test Log </h2>
+		<p class="mono">
+		{% for entry in session_log  %}
+			{{ entry }} <br>
+		{% endfor %}
+		</p>
+		{% if bugs|length > 0 %}
+		<h2> Bugs </h2>
+		<p class="mono">
+		{% for entry in bugs  %}
+			{{ entry }} <br>
+		{% endfor %}
+		</p>
+		{% endif %}
+		<p>
+		{% if debrief is not none %}
+		<h2>Debrief</h2>
+		{{ session_debrief }}
+		{% endif %}
+		</p>
+	</body>
+</html>

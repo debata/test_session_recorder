@@ -1,0 +1,23 @@
+Test for a none existent test session
+
+>>> from test_session_recorder import TestSessionRecorder
+>>> recorder = TestSessionRecorder()
+
+>>> recorder.new_session('Doctest')
+Session Started: Doctest
+================================================================================
+
+>>> recorder.check_for_session('Doctest')
+True
+
+>>> recorder.quit_session()# doctest:+ELLIPSIS
+Session Duration: ...
+Session saved.
+
+>>> recorder.delete_session('Doctest', 'n')
+>>> recorder.check_for_session('Doctest')
+True
+>>> recorder.delete_session('Doctest', 'y')
+Doctest successfully deleted
+>>> recorder.check_for_session('Doctest')
+False
