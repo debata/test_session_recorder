@@ -3,9 +3,9 @@ import cmd
 import os
 import datetime
 import subprocess
-from modules.report_generator import SessionReportGenerator
-from modules.session import Session
-from modules.print_colour import Printer
+from .report_generator import SessionReportGenerator
+from .print_colour import Printer
+from .session import Session
 
 
 class TestSessionRecorder(cmd.Cmd):
