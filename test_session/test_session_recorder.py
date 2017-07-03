@@ -3,16 +3,16 @@ import cmd
 import os
 import datetime
 import subprocess
-from modules.report_generator import SessionReportGenerator
-from modules.session import Session
-from modules.print_colour import Printer
+from .report_generator import SessionReportGenerator
+from .print_colour import Printer
+from .session import Session
 
 
 class TestSessionRecorder(cmd.Cmd):
     # Constants
     # File System
-    SESSION_DIR = 'sessions'
-    REPORTS_DIR = 'reports'
+    SESSION_DIR = os.path.expanduser("~") + '/sessions'
+    REPORTS_DIR = os.path.expanduser("~") + '/reports'
     # Prompts
     DEFAULT_PROMPT = '>> '
 
@@ -33,7 +33,7 @@ class TestSessionRecorder(cmd.Cmd):
         columns = 80
 
     def preloop(self):
-        if not os.path.exists(os.path.join(os.getcwd(), self.SESSION_DIR)):
+        if not os.path.exists(os.path.join(self.SESSION_DIR)):
             os.makedirs(self.SESSION_DIR)
 
     def do_new(self, session_name):
@@ -103,7 +103,7 @@ class TestSessionRecorder(cmd.Cmd):
             session_name = args[0].strip()
             if self.check_for_session(session_name):
                 generator = SessionReportGenerator(self.REPORTS_DIR,
-                                                   'test_session_recorder')
+                                                   'test_session')
                 session_data = Session.get_session_data(
                         session_name, self.SESSION_DIR)
                 log = session_data[Session.LOG_KEY]

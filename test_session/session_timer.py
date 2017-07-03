@@ -13,14 +13,12 @@ class DurationTimer:
         return True
 
     def unpause(self):
-        self.pause_interval = datetime.datetime.now().replace(microsecond=0)
-        - self.pause_start
+        self.pause_interval = datetime.datetime.now().replace(microsecond=0)- self.pause_start
         self.pause_intervals.append(self.pause_interval)
         return False
 
     def get_duration(self):
-        self.total_duration = datetime.datetime.now().replace(microsecond=0)
-        - self.start_time
+        self.total_duration = datetime.datetime.now().replace(microsecond=0)- self.start_time
         for interval in self.pause_intervals:
             self.total_duration -= interval
 
