@@ -1,1 +1,1 @@
-include modules/
+include test_session/templates/*

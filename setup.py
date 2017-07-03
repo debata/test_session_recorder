@@ -10,13 +10,15 @@ setup(name='test_session',
       url='https://github.com/debata/test_session_recorder',
       author='Daryl Ebata',
       author_email='daryl.ebata@gmail.com',
+      keywords='agile software testing exploratory',
       license='Apache',
       packages=['test_session'],
       zip_safe=False,
       python_requires='>=3',
+      install_requires=['datetime', 'jinja2'],
       include_package_data=True,
       entry_points={
           'console_scripts': [
-              'test_session = test_session.start:main'
+              'testrecorder = test_session.start:main'
           ]
       })
