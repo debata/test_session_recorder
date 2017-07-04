@@ -18,3 +18,46 @@ application will start and display:
 ==========================================================================
 ```
 
+# Commands
+
+Using the ```help``` command will display all supported commands:
+```
+>> help
+
+Documented commands (type help <topic>):
+========================================
+delete  help  list  new  open  quit  report  show
+```
+
+Using ``` help <command>``` will display a description for the given command. Eg:
+```
+>> help list
+list
+        List all test sessions
+```
+
+Similarly, when a session has started, the ```help``` command will display all in-sesssion commands as well. Eg:
+
+```
+>> new TestSession
+Session Started: TestSession
+====================================================================================
+SESSION >> help
+Available session commandsbug  
+mission  
+timebox  
+pause  
+duration  
+undo  
+areas  
+screenshot  
+help
+SESSION >> help duration
+duration 
+        Show the current session duration
+SESSION >> duration
+Duration: 0:00:16
+```
+
+
+
